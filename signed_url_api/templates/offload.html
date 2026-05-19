@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+
+    <p>Logged in as: {{ user }}</p><br>
+    
+    <a href="{{ url_for('index') }}"><button>Upload</button></a>
+    <button disabled>Offload</button><br>
+
+    <h2>Generate Signed Offload URL</h2>
+
+    Sample_ID:<br>
+    <input type="text" id="sample"><br><br>
+
+    <button onclick="generate()">Generate URL</button>
+
+    <h3>Result</h3>
+
+    <p><b>Signed URL:</b></p>
+    <textarea id="url" rows="4" cols="80"></textarea>
+
+    <p><b>Expires in:</b></p>
+    <p id="expiry"></p>
+
+    <script>
+        async function generate() {
+
+            const sample = document.getElementById("sample").value;
+
+            if (!sample) {
+                alert("Enter sample");
+                return;
+            }
+
+            const res = await fetch(
+                "/generate-offload-url?sample=" + encodeURIComponent(sample)
+            );
+
+            const data = await res.json();
+
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+
+            document.getElementById("url").value = data.offload_url;
+            document.getElementById("expiry").innerText = data.expires_in;
+        }
+    </script>
+
+</body>
+
+</html>

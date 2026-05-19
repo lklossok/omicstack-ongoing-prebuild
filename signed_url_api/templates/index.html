@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+
+    <p>Logged in as: {{ user }}</p><br>
+
+    <button disabled>Upload</button>
+    <a href="{{ url_for('offload') }}"><button>Offload</button></a><br>
+
+    <h2>Generate Signed Upload URL</h2>
+
+    Filename:<br>
+    <input type="text" id="filename"><br><br>
+
+    <label for="pipeline">Pipeline output:</label><br>
+    <select id="pipeline">
+        <option value="bam">Aligned BAM</option>
+        <option value="vcf">Variant VCF</option>
+    </select><br><br>
+
+    <button onclick="generate()">Generate URL</button>
+
+    <h3>Result</h3>
+
+    <p><b>Signed URL:</b></p>
+    <textarea id="url" rows="4" cols="80"></textarea>
+
+    <p><b id="expiresin"></b></p>
+    <p id="expiry"></p>
+
+    <script>
+        async function generate() {
+
+            const filename = document.getElementById("filename").value;
+            const pipeline = document.getElementById("pipeline").value;
+
+            if (!filename) {
+                alert("Enter filename");
+                return;
+            }
+
+            const res = await fetch(
+                "/generate-upload-url?filename=" + encodeURIComponent(filename) +
+                "&pipeline=" + encodeURIComponent(pipeline)
+            );
+
+            const data = await res.json();
+
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+
+            document.getElementById("url").value = data.upload_url;
+            document.getElementById("expiresin").innerText = "Expires in:"
+            document.getElementById("expiry").innerText = data.expires_in;
+        }
+    </script>
+
+</body>
+
+</html>
